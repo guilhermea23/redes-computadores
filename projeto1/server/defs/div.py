@@ -1,2 +1,2 @@
-def div(*x:float)->float:
-    pass
+def div(num1:int,num2:int) -> int:
+    return num1 / num2

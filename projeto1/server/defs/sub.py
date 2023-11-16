@@ -1,5 +1,2 @@
-def sub(*x:float) -> float:
-    res = 0
-    for args in x:
-        res-=args
-    return res
+def sub(num1:int,num2:int) -> int:
+    return num1 - num2

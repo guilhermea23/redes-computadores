@@ -1,5 +1,2 @@
-def multi(*x:float)->float:
-    res = 1
-    for args in x:
-        res*=args
-    return res
+def multi(num1:int,num2:int) -> int:
+    return num1 * num2

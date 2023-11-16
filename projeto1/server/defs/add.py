@@ -1,5 +1,2 @@
-def add(*x:int) -> int:
-    res = 0
-    for var in x:
-        res+=var
-    return res
+def add(num1:int,num2:int) -> int:
+    return num1 + num2
