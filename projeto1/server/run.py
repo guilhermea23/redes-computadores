@@ -17,40 +17,52 @@ ACTIONS = {
     "EXIT" : "0"
 }
 
+functions = {
+    add.add.__name__ : add.add,
+    sub.sub.__name__ : sub.sub,
+    div.div.__name__ : div.div,
+    multi.multi.__name__ : multi.multi,
+}
+
+def HasFailed(json):
+    if json['header']['status'] != 200:
+        return True
+
 def get_info_defs():
-    print(add.add.__getattribute__)
     infos = {}
     add_sign = {
-        'name' : add.add.__name__,
         'args' : 2,
         'argType' : "Integer",
         'return' : "Integer"  
     }
     div_sign = {
-        'name' : div.div.__name__,
         'args' : 2,
         'argType' : "Integer",
         'return' : "Integer"  
     }
     multi_sign = {
-        'name' : multi.multi.__name__,
         'args' : 2,
         'argType' : "Integer",
         'return' : "Integer"  
     }
     sub_sign = {
-        'name' : sub.sub.__name__,
         'args' : 2,
         'argType' : "Integer",
         'return' : "Integer"  
     }
     
-    infos["sum"]=add_sign
-    infos["sub"]=sub_sign
-    infos["div"]=div_sign
-    infos["multi"]=multi_sign
+    infos[add.add.__name__]=add_sign
+    infos[sub.sub.__name__]=sub_sign
+    infos[div.div.__name__]=div_sign
+    infos[multi.multi.__name__]=multi_sign
     
     return infos
+
+def exec(func, args):
+    global functions
+    
+    # if func in function:
+    pass
 
 def handler_client(client_socket):
     try:
@@ -59,25 +71,40 @@ def handler_client(client_socket):
                 "header":'',
                 "body" : ''
             }
-            msg = client_socket.recvmsg(MAX_SIZE_BUFFER)[0].decode("utf-8")
-            print("client say: ", msg)
-            if (msg == ACTIONS["EXIT"]):
-                print("Action: Exit")
-                response['header']  = {"status" : 200}
-                print(response)
-                client_socket.sendmsg([json.dumps(response).encode("utf-8")])
-                break
-            elif (msg == ACTIONS["LIST"]):
-                 print("Action: List")
-                 response['header']  = {"status" : 200}
-                 response['body'] = get_info_defs()
-                 print(response)
-                 client_socket.sendmsg([json.dumps(response).encode("utf-8")])
-            elif (msg == ACTIONS["EXECUTE"]):
-                 print("Action: Execute")
+            json_client = json.loads(client_socket.recvmsg(MAX_SIZE_BUFFER)[0].decode("utf-8"))
+            print("client say: ", json_client)
+
+            if HasFailed(json_client):
+                response['header'] = {'status':500}
             else:
-                print("Código Inválido")
-                break    
+                msg = json_client['body']['message']
+                content = json_client['body']['content']
+                if (msg == ACTIONS["EXIT"]):
+                    print("Action: Exit")
+                    response['header']  = {"status" : 200}
+                    client_socket.sendmsg([json.dumps(response).encode("utf-8")])
+                    break
+                elif (msg == ACTIONS["LIST"]):
+                    print("Action: List")
+                    response['header']  = {"status" : 200}
+                    response['body'] = get_info_defs()
+                    client_socket.sendmsg([json.dumps(response).encode("utf-8")])
+                elif (msg == ACTIONS["EXECUTE"]):
+                    print("Action: Execute")
+                    func, args = content.split(':')
+                    args = args.split(",")
+
+                    print (func,args)
+
+                    response['body'] = exec(func,args)
+
+                    response['header'] = {'status': 200}
+                    client_socket.sendmsg([json.dumps(response).encode("utf-8")])
+                else:
+                    print("Código Inválido")
+                    response['header'] = {'status':500}
+                    client_socket.sendmsg([json.dumps(response).encode("utf-8")])
+                    break    
     except Exception as e:
         print(f"Erro ao lidar com o cliente: {e}")
     finally:
