@@ -45,7 +45,6 @@ def createStub(name, **kwargs):
         return runFunc(name, **kwargs)
     return method
 
-# TODO - limpar a mensagem em JSON e transformá-la em uma lista global de funções
 def list_functions(msg):
 
     global stubs
@@ -71,8 +70,11 @@ def exec(name,msg, **kwargs):
 def run():
     global socket_client
 
+    # Create connection
     socket_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     socket_client.connect(("localhost",PORT))
+
+
     while True:
         print("What do you want?\n1. Execute a function\n2. List all functions\n\n\r0. Exit")
         msg = input("\n")

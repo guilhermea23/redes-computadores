@@ -23,9 +23,11 @@ functions = {
     multi.multi.__name__ : multi.multi,
 }
 
+def send(msg,socket):
+    socket.sendmsg([json.dumps(msg).encode("utf-8")])
+
 def HasFailed(msg):
-    if msg['header']['status'] != 200:
-        return True
+    return msg['header']['status'] != 200
 
 def get_info_defs():
     infos = {}
@@ -66,8 +68,8 @@ def exec(func, args):
         raise Exception('Function not in the list!')
 
 def handler_client(client_socket):
-    try:
-        while True:
+    while True:
+        try:
             response = {
                 "header":'',
                 "body" : ''
@@ -76,43 +78,45 @@ def handler_client(client_socket):
             print("client say: ", json_client)
 
             if HasFailed(json_client):
-                response['header'] = {'status':500}
+                raise Exception('Bad Request.')
             else:
                 msg = json_client['body']['message']
                 content = json_client['body']['content']
                 if (msg == ACTIONS["EXIT"]):
                     print("Action: Exit")
                     response['header']  = {"status" : 200}
-                    client_socket.sendmsg([json.dumps(response).encode("utf-8")])
+
+                    send(response,client_socket)
                     break
                 elif (msg == ACTIONS["LIST"]):
                     print("Action: List")
                     response['header']  = {"status" : 200}
                     response['body'] = get_info_defs()
-                    client_socket.sendmsg([json.dumps(response).encode("utf-8")])
+
+                    send(response,client_socket)
                 elif (msg == ACTIONS["EXECUTE"]):
                     print("Action: Execute")
+
+                    # Args Cleanup
                     func, args = content.split(':')
                     args = list(map(int,args.split(",")))
-                    
 
-                    print (func,args)
-
+                    # Setting response flags and values
                     response['body'] = exec(func,args)
-
-                    print(response['body'])
-
                     response['header'] = {'status': 200}
-                    client_socket.sendmsg([json.dumps(response).encode("utf-8")])
+
+                    send(response,client_socket)
                 else:
-                    raise Exception('Código Inválido')  
-    except Exception as e:
-        print(f"Erro ao lidar com o cliente: {e}")
-        response['header'] = {'status':500,'error':f"{e}"}
-        client_socket.sendmsg([json.dumps(response).encode("utf-8")])
-    finally:
-        client_socket.close()
-        print("See you later!")
+                    raise Exception('Invalid Command.')  
+        except Exception as e:
+            print(f"Erro ao lidar com o cliente: {e}")
+            response['header'] = {'status':500,'error':f"{e}"}
+
+            send(response,client_socket)
+
+    # Closing connection
+    client_socket.close()
+    print("See you later!")
 
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
