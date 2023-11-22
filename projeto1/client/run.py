@@ -91,7 +91,7 @@ def run():
                 print("Which function do you want to execute?")
                 args = {}
                 while True:
-                    func = input("\n")
+                    func = input("\n> ")
                     if not (func not in stubs) or not (func not in functions):
                         break
                     print ("Function is not on the list!")
@@ -99,7 +99,7 @@ def run():
                 print("Enter the arguments:")
                 for i in range(functions[func]['args']):
                     for x in range(100):
-                        entry = input('\n')
+                        entry = input("\n> ")
                         if entry.isdecimal():
                             args[f'{i}'] = entry
                             break
