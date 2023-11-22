@@ -10,11 +10,6 @@ ACTIONS = {
     "EXIT" : "0"
 }
 
-# def receive_info_defs(response):
-#     # Deserialize JSON data
-#     json_data_received = json.loads(response)
-#     print('Received JSON data:', json_data_received)
-
 socket_client = None
 
 def send(message:str,*content):
@@ -77,7 +72,8 @@ def run():
 
     while True:
         print("What do you want?\n1. Execute a function\n2. List all functions\n\n\r0. Exit")
-        msg = input("\n")
+        msg = input("\n> ")
+        print()
 
         # Exit and cut connection with the server
         if msg == ACTIONS['EXIT']:
@@ -114,7 +110,7 @@ def run():
                 if exec(name = func,msg = msg, kwargs = args):
                     response , success = receive()
                     if success:
-                        print(f"The response of your request is:\n {response}")
+                        print(f"The response of your request is: {response}")
                     else:
                         print(response)
                 else:
