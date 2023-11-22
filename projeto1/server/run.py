@@ -1,13 +1,12 @@
 import socket
 from multiprocessing import Process
-import inspect
 import defs.add as add
 import defs.div as div
 import defs.multi as multi
 import defs.sub as sub
 import json
 
-PORT = 3000
+PORT = 3333
 MAX_SIZE_BUFFER = 4096
 MAX_CONNECTION = 5
 
@@ -24,8 +23,8 @@ functions = {
     multi.multi.__name__ : multi.multi,
 }
 
-def HasFailed(json):
-    if json['header']['status'] != 200:
+def HasFailed(msg):
+    if msg['header']['status'] != 200:
         return True
 
 def get_info_defs():
@@ -61,8 +60,10 @@ def get_info_defs():
 def exec(func, args):
     global functions
     
-    # if func in function:
-    pass
+    if func in functions:
+        return functions[func](args)
+    else:
+        raise Exception('Function not in the list!')
 
 def handler_client(client_socket):
     try:
@@ -92,21 +93,23 @@ def handler_client(client_socket):
                 elif (msg == ACTIONS["EXECUTE"]):
                     print("Action: Execute")
                     func, args = content.split(':')
-                    args = args.split(",")
+                    args = list(map(int,args.split(",")))
+                    
 
                     print (func,args)
 
                     response['body'] = exec(func,args)
 
+                    print(response['body'])
+
                     response['header'] = {'status': 200}
                     client_socket.sendmsg([json.dumps(response).encode("utf-8")])
                 else:
-                    print("Código Inválido")
-                    response['header'] = {'status':500}
-                    client_socket.sendmsg([json.dumps(response).encode("utf-8")])
-                    break    
+                    raise Exception('Código Inválido')  
     except Exception as e:
         print(f"Erro ao lidar com o cliente: {e}")
+        response['header'] = {'status':500,'error':f"{e}"}
+        client_socket.sendmsg([json.dumps(response).encode("utf-8")])
     finally:
         client_socket.close()
         print("See you later!")

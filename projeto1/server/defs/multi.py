@@ -1,2 +1,5 @@
-def multi(num1:int,num2:int) -> int:
-    return num1 * num2
+def multi(args:list[int]) -> int:
+    res = 1
+    for i in args:
+        res = res * i
+    return res

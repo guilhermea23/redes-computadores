@@ -1,2 +1,5 @@
-def sub(num1:int,num2:int) -> int:
-    return num1 - num2
+def sub(args:list[int]) -> int:
+    res = args[0]
+    for i in args[1:]:
+        res -= i
+    return res
