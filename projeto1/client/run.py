@@ -1,4 +1,5 @@
 import socket
+from multiprocessing import Process
 import json
 
 PORT=3333
@@ -71,6 +72,7 @@ def run():
 
 
     while True:
+        retries = 0
         print("What do you want?\n1. Execute a function\n2. List all functions\n\n\r0. Exit")
         msg = input("\n> ")
         print()

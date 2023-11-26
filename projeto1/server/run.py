@@ -5,6 +5,8 @@ import defs.div as div
 import defs.multi as multi
 import defs.sub as sub
 import json
+from random import randint
+from time import sleep
 
 PORT = 3333
 MAX_SIZE_BUFFER = 4096
@@ -24,6 +26,7 @@ functions = {
 }
 
 def send(msg,socket):
+    sleep(randint(0,20))
     socket.sendmsg([json.dumps(msg).encode("utf-8")])
 
 def HasFailed(msg):
