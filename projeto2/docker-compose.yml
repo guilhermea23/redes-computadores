@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  frontend:
+    image: nginx:latest
+    ports:
+      - "80:80"
+
+  backend:
+    image: openjdk:latest
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - redis
+
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: redes_de_computadores
+      POSTGRES_USER: 190125748
+      POSTGRES_PASSWORD: 190125748
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
